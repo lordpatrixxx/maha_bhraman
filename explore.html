@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Explore Maharashtra — Maha Bhraman</title>
+<meta name="description" content="Choose your journey through Maharashtra's six worlds: heritage, religious, coastal, wildlife, and special pilgrim circuits." />
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="screen active" id="s-explore">
+  <div class="bg"></div>
+  <div class="veil"></div>
+  <div class="topbar">
+    <a href="index.html" class="back-btn">← Back</a>
+    <div class="brand"><div class="brand-mark">म</div><div class="brand-name">Maha Bhraman</div></div>
+  </div>
+  <div class="explore-title fade-up">
+    <div class="ornament">Choose your journey</div>
+    <h1>Six Worlds, <span class="accent">One Maharashtra</span></h1>
+    <p>Each path tells a different story of this ancient land. Pick the one that calls to you.</p>
+  </div>
+  <div class="cat-grid" id="catGrid"></div>
+  <div class="contrib">
+    <div class="lab">A project by</div>
+    <h4>Team Maha Bhraman</h4>
+    <ul>
+      <li><b>Swastik Phapale</b> · PRN 125B1F212</li>
+      <li><b>Pratik Phapale</b> · PRN 125B1F210</li>
+      <li><b>Swapnil Jadhav</b> · PRN 125B1F211</li>
+      <li><b>Sarthak Gandhi</b> · PRN 125B1F201</li>
+    </ul>
+    <div class="small">Maha Bhraman · A journey through Maharashtra</div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script>
+// Build category grid
+(function(){
+  const g = document.getElementById('catGrid');
+  const order = ['heritage','religious','coastal','wildlife','special'];
+  const repImg = {
+    heritage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Pratapgad_The_Fort_of_Valour.jpg/1280px-Pratapgad_The_Fort_of_Valour.jpg',
+    religious: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Mahabaleshwar_Temple.jpg/1280px-Mahabaleshwar_Temple.jpg',
+    coastal: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Mumbai_03-2016_30_Gateway_of_India.jpg',
+    wildlife: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tadoba_Andhari_Tiger_Reserve.jpg/1280px-Tadoba_Andhari_Tiger_Reserve.jpg',
+    special: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Ajanta_%2863%29.jpg/1280px-Ajanta_%2863%29.jpg'
+  };
+  order.forEach(cid=>{
+    const c = DATA.categories[cid];
+    const card = document.createElement('div');
+    card.className = 'cat-card fade-up';
+    card.innerHTML = `
+      <div class="img" style="background-image:url('${repImg[cid]}')"></div>
+      <div class="veil"></div>
+      <div class="glyph">${GLYPHS[cid]||'✦'}</div>
+      <div class="body"><h3>${c.title}</h3><p>${c.tagline}</p></div>`;
+    card.onclick = ()=> {
+      if (cid === 'special') window.location.href = 'special.html';
+      else window.location.href = `wheel.html?category=${cid}`;
+    };
+    g.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>

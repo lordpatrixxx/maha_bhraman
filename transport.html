@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Travel Information — Maha Bhraman</title>
+<meta name="description" content="Transportation options and schedules for traveling to destinations in Maharashtra." />
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="screen active" id="s-transport">
+  <div class="topbar">
+    <a href="#" class="back-btn" id="backBtn">← Back</a>
+    <div class="brand"><div class="brand-mark">म</div><div class="brand-name">Maha Bhraman</div></div>
+  </div>
+  <div class="transport-head">
+    <div class="lab">Plan your travel</div>
+    <h1 id="tHeading">—</h1>
+    <p id="tSub">—</p>
+  </div>
+  <div class="transport-grid">
+    <div class="t-card">
+      <h3><span class="icon">🚌</span> By Bus</h3>
+      <table id="busTable"><thead><tr><th>Operator</th><th>Code</th><th>Dep</th><th>Arr</th><th>Fare</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="t-card">
+      <h3><span class="icon">✈</span> By Flight</h3>
+      <div id="flightTableWrap"></div>
+    </div>
+  </div>
+  <div class="contrib">
+    <div class="lab">Project by</div>
+    <h4>Team Maha Bhraman</h4>
+    <ul>
+      <li><b>Swastik Phapale</b> · PRN 125B1F212</li>
+      <li><b>Pratik Phapale</b> · PRN 125B1F210</li>
+      <li><b>Swapnil Jadhav</b> · PRN 125B1F211</li>
+      <li><b>Sarthak Gandhi</b> · PRN 125B1F201</li>
+    </ul>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script>
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+function initTransport() {
+  const spotId = getQueryParam('spot');
+  const city = getQueryParam('city');
+
+  if (!spotId || !city || !DATA.spots[spotId] || !DATA.transport[spotId] || !DATA.transport[spotId][city]) {
+    window.location.href = 'explore.html';
+    return;
+  }
+
+  const sp = DATA.spots[spotId];
+  const t = DATA.transport[spotId][city];
+  document.getElementById('tHeading').textContent = `${city} → ${sp.name}`;
+  document.getElementById('tSub').textContent = `Sample schedule from ${city} (${t.airport_origin}) to nearest airport ${t.airport_dest}.`;
+  document.getElementById('backBtn').href = `info.html?spot=${spotId}`;
+
+  // Bus table
+  const tb = document.querySelector('#busTable tbody');
+  tb.innerHTML = '';
+  t.buses.forEach(b=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${b.op}</td><td>${b.code}</td><td>${b.dep}</td><td>${b.arr}</td><td>${b.fare}</td>`;
+    tb.appendChild(tr);
+  });
+
+  // Flights
+  const fw = document.getElementById('flightTableWrap');
+  if (!t.flights.length) {
+    fw.innerHTML = `<div class="empty-flight">No direct flight needed — your origin and destination share airport <b>${t.airport_origin}</b>. Bus or road is the recommended option.</div>`;
+  } else {
+    let h = `<table><thead><tr><th>Airline</th><th>Code</th><th>${t.airport_origin} → ${t.airport_dest}</th><th>Arr</th><th>Fare</th></tr></thead><tbody>`;
+    t.flights.forEach(f=>{
+      h += `<tr><td>${f.op}</td><td>${f.code}</td><td>${f.dep}</td><td>${f.arr}</td><td>${f.fare}</td></tr>`;
+    });
+    h += `</tbody></table>`;
+    fw.innerHTML = h;
+  }
+}
+
+initTransport();
+</script>
+</body>
+</html>

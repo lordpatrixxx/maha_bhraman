@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Special Tours — Maha Bhraman</title>
+<meta name="description" content="Sacred pilgrim circuits of Maharashtra: Ashtavinayak, Jyotirlinga, and 3.5 Shakti Peethas." />
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="screen active" id="s-special">
+  <div class="topbar">
+    <a href="explore.html" class="back-btn">← Back</a>
+    <div class="brand"><div class="brand-mark">म</div><div class="brand-name">Maha Bhraman</div></div>
+  </div>
+  <div class="explore-title fade-up">
+    <div class="ornament">Special Tours</div>
+    <h1>Sacred <span class="accent">Circuits</span></h1>
+    <p>Three pilgrim trails that have shaped Indian devotion for millennia.</p>
+  </div>
+  <div class="cat-grid special-grid" id="specialGrid"></div>
+</section>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script>
+// Build special sub-grid
+(function(){
+  const g = document.getElementById('specialGrid');
+  const order = ['ashtavinayak','jyotirlinga','shakti'];
+  order.forEach(sid=>{
+    const s = DATA.special[sid];
+    const card = document.createElement('div');
+    card.className = 'cat-card fade-up';
+    card.innerHTML = `
+      <div class="img" style="background-image:url('${s.image}')"></div>
+      <div class="veil"></div>
+      <div class="glyph">❖</div>
+      <div class="body"><h3>${s.title}</h3><p>${s.tagline}</p></div>`;
+    card.onclick = ()=> window.location.href = `wheel.html?special=${sid}`;
+    g.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>

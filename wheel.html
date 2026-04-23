@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wheel Selector — Maha Bhraman</title>
+<meta name="description" content="Spin the wheel to discover random destinations in Maharashtra." />
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="screen active" id="s-wheel">
+  <div class="topbar">
+    <a href="#" class="back-btn" id="backBtn">← Back</a>
+    <div class="brand"><div class="brand-mark">म</div><div class="brand-name" id="wheelTitle">Maha Bhraman</div></div>
+  </div>
+  <div class="wheel-stage">
+    <div class="wheel-wrap" id="wheelWrap">
+      <div class="scroll-cue"><span class="ico"></span> Scroll to spin</div>
+      <div class="wheel" id="wheel"></div>
+      <div class="wheel-pointer"></div>
+    </div>
+    <aside class="wheel-info">
+      <div class="lab">Currently selected</div>
+      <h2 id="wheelName">—</h2>
+      <p class="tag" id="wheelTag">Spin the wheel using your mouse scroll.</p>
+      <a href="#" class="pick-btn" id="pickBtn">Visit this place →</a>
+      <div class="hint">Tip: scroll up or down anywhere on this page to rotate the wheel. The half-wheel keeps spinning infinitely; whichever circle aligns with the golden arrow is your selection.</div>
+    </aside>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script>
+// Wheel functionality
+let wheelAngle = 0;
+let wheelStep = 0;
+let wheelItemsEls = [];
+let activeIdx = 0;
+let currentSpotIds = [];
+let currentCategory = '';
+
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+function initWheel() {
+  const category = getQueryParam('category');
+  const special = getQueryParam('special');
+
+  if (category) {
+    currentCategory = 'explore';
+    currentSpotIds = DATA.catSpots[category];
+    document.getElementById('wheelTitle').textContent = DATA.categories[category].title;
+    document.getElementById('backBtn').href = 'explore.html';
+  } else if (special) {
+    currentCategory = 'special';
+    currentSpotIds = DATA.specialSpots[special];
+    document.getElementById('wheelTitle').textContent = DATA.special[special].title;
+    document.getElementById('backBtn').href = 'special.html';
+  }
+
+  buildWheel();
+}
+
+function buildWheel(){
+  const wheel = document.getElementById('wheel');
+  wheel.innerHTML = '';
+  const N = currentSpotIds.length;
+  wheelStep = 360 / N;
+  const r = 520;
+  wheel.style.setProperty('--wheel-r', r+'px');
+  wheelItemsEls = [];
+  currentSpotIds.forEach((sid, i)=>{
+    const sp = DATA.spots[sid];
+    const el = document.createElement('div');
+    el.className = 'wheel-item';
+    const ang = i * wheelStep;
+    const rad = ang * Math.PI/180;
+    const ringR = r - 110;
+    const x = Math.cos(rad) * ringR;
+    const y = Math.sin(rad) * ringR;
+    el.style.transform = `translate(${x}px, ${y}px) rotate(${-ang}deg)`;
+    el.dataset.baseAngle = ang;
+    el.innerHTML = `<img src="${sp.image}" alt="${sp.name}" onerror="this.parentNode.classList.add('broken'); this.style.display='none'"/>`;
+    el.onclick = ()=> { snapToIndex(i); openCurrentSpot(); };
+    wheel.appendChild(el);
+    wheelItemsEls.push(el);
+  });
+  wheelAngle = 0;
+  applyWheel();
+  updateWheelInfo();
+}
+
+function applyWheel(){
+  const wheel = document.getElementById('wheel');
+  wheel.style.transform = `translateY(-50%) rotate(${wheelAngle}deg)`;
+  let bestI = 0, bestDist = 1e9;
+  wheelItemsEls.forEach((el, i)=>{
+    const base = parseFloat(el.dataset.baseAngle);
+    let screenAng = (base + wheelAngle) % 360;
+    if (screenAng < 0) screenAng += 360;
+    const dist = Math.min(screenAng, 360 - screenAng);
+    if (dist < bestDist) { bestDist = dist; bestI = i; }
+    const img = el.querySelector('img');
+    if (img) img.style.transform = `rotate(${-wheelAngle}deg)`;
+    el.classList.remove('active');
+  });
+  wheelItemsEls[bestI] && wheelItemsEls[bestI].classList.add('active');
+  if (bestI !== activeIdx) { activeIdx = bestI; updateWheelInfo(); }
+}
+
+function updateWheelInfo(){
+  const sid = currentSpotIds[activeIdx];
+  if (!sid) return;
+  const sp = DATA.spots[sid];
+  document.getElementById('wheelName').textContent = sp.name;
+  document.getElementById('wheelTag').textContent = sp.info.split('.').slice(0,1).join('.') + '.';
+}
+
+function snapToIndex(i){
+  const target = -i * wheelStep;
+  let delta = ((target - wheelAngle) % 360 + 540) % 360 - 180;
+  wheelAngle += delta;
+  applyWheel();
+}
+
+function openCurrentSpot(){
+  const sid = currentSpotIds[activeIdx];
+  if (!sid) return;
+  window.location.href = `info.html?spot=${sid}`;
+}
+
+// Event listeners
+window.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  wheelAngle += e.deltaY * 0.25;
+  applyWheel();
+}, {passive:false});
+
+let touchStartY = null;
+window.addEventListener('touchstart', e=>{ touchStartY = e.touches[0].clientY; });
+window.addEventListener('touchmove', e=>{
+  if (touchStartY===null) return;
+  const dy = e.touches[0].clientY - touchStartY;
+  wheelAngle += dy * 0.5;
+  touchStartY = e.touches[0].clientY;
+  applyWheel();
+});
+
+document.getElementById('pickBtn').onclick = openCurrentSpot;
+
+initWheel();
+</script>
+</body>
+</html>

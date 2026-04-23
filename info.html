@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Destination Info — Maha Bhraman</title>
+<meta name="description" content="Detailed information about destinations in Maharashtra." />
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+<section class="screen active" id="s-info">
+  <div class="topbar" style="position:absolute;left:0;right:0;z-index:10">
+    <a href="#" class="back-btn" id="backBtn">← Back</a>
+    <div class="brand"><div class="brand-mark">म</div><div class="brand-name">Maha Bhraman</div></div>
+  </div>
+  <div class="hero">
+    <img id="infoHeroImg" src="" alt="" onerror="this.classList.add('broken'); this.style.display='none'"/>
+    <div class="veil"></div>
+    <div class="titlebox">
+      <div class="lab" id="infoLab">Discover</div>
+      <h1 id="infoName">—</h1>
+    </div>
+  </div>
+  <div class="info-body">
+    <div class="info-text">
+      <h2>About</h2><p id="infoAbout"></p>
+      <h2>History</h2><p id="infoHist"></p>
+      <h2>Story &amp; Legend</h2><p id="infoStory"></p>
+      <h2>Nearby (within 100 km)</h2><ul id="infoNear"></ul>
+    </div>
+    <div class="info-image"><img id="infoSideImg" src="" alt="" onerror="this.classList.add('broken')"/></div>
+  </div>
+  <div class="origin-section">
+    <h2>From where are you travelling?</h2>
+    <p class="sub">Pick your starting city to see how to get there.</p>
+    <div class="city-grid" id="cityGrid"></div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+<script>
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+function initInfo() {
+  const spotId = getQueryParam('spot');
+  if (!spotId || !DATA.spots[spotId]) {
+    window.location.href = 'explore.html';
+    return;
+  }
+
+  const sp = DATA.spots[spotId];
+  document.getElementById('infoName').textContent = sp.name;
+  document.getElementById('infoLab').textContent = 'Discover';
+  document.getElementById('infoHeroImg').src = sp.image;
+  document.getElementById('infoHeroImg').style.display = '';
+  document.getElementById('infoHeroImg').classList.remove('broken');
+  document.getElementById('infoSideImg').src = sp.image;
+  document.getElementById('infoSideImg').classList.remove('broken');
+  document.getElementById('infoAbout').textContent = sp.info;
+  document.getElementById('infoHist').textContent = sp.history;
+  document.getElementById('infoStory').textContent = sp.story;
+  const ul = document.getElementById('infoNear');
+  ul.innerHTML = '';
+  sp.nearby.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; ul.appendChild(li); });
+
+  // Set back button to go to wheel (we'll assume it came from wheel)
+  document.getElementById('backBtn').href = 'wheel.html';
+
+  // Build city grid
+  const g = document.getElementById('cityGrid');
+  DATA.cities.forEach(c=>{
+    const b = document.createElement('button');
+    b.className = 'city-btn';
+    b.textContent = c;
+    b.onclick = ()=> window.location.href = `transport.html?spot=${spotId}&city=${c}`;
+    g.appendChild(b);
+  });
+}
+
+initInfo();
+</script>
+</body>
+</html>
